@@ -1,0 +1,22 @@
+# gcloud run services replace deploy/cloudrun/service.yaml
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: telco-assurance-agent
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "1"   # keep one warm instance: paused incidents live in memory
+    spec:
+      serviceAccountName: assurance-agent@my-gcp-project.iam.gserviceaccount.com
+      containers:
+        - image: REGION-docker.pkg.dev/my-gcp-project/agents/telco-assurance-agent:latest
+          env:
+            - {name: LLM_PROVIDER, value: vertex}
+            - {name: VERTEX_PROJECT, value: my-gcp-project}
+            - {name: VERTEX_REGION, value: us-east5}
+            - {name: EVENT_BUS, value: pubsub}
+            - {name: ALARM_TOPIC, value: noc-alarms}
+          resources:
+            limits: {cpu: "1", memory: 1Gi}

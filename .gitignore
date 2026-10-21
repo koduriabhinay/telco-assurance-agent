@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+eval/report.json
+.pytest_cache/
+.ruff_cache/

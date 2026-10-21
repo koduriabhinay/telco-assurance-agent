@@ -1,0 +1,100 @@
+# Lint -> unit tests (SQLite and PostgreSQL) -> agent evaluation gate -> image -> deploy
+stages: [lint, test, eval, build, deploy]
+
+variables:
+  IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
+  LLM_PROVIDER: mock
+
+default:
+  image: python:3.12-slim
+  cache:
+    paths: [.cache/pip]
+  before_script:
+    - pip install -r requirements-dev.txt
+
+lint:
+  stage: lint
+  script:
+    - ruff check app eval tests
+
+unit-tests:
+  stage: test
+  script:
+    - pytest -q --junitxml=report.xml
+  artifacts:
+    reports:
+      junit: report.xml
+
+postgres-tests:
+  stage: test
+  services:
+    - name: postgres:16
+      alias: db
+  variables:
+    POSTGRES_PASSWORD: ci
+    DATABASE_URL: postgresql://postgres:ci@db:5432/postgres
+  script:
+    - pytest -q
+
+agent-eval:
+  stage: eval
+  script:
+    # fails the pipeline if root-cause accuracy or resolution rate drops below 90%,
+    # or if any unsafe (non-runbook) action is proposed
+    - python -m eval.run_eval --out eval/report.json --min-rca 0.9 --min-resolution 0.9
+  artifacts:
+    paths: [eval/report.json]
+    expire_in: 30 days
+
+# Same gate against the real model; runs on main when the key is configured
+agent-eval-claude:
+  stage: eval
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $ANTHROPIC_API_KEY'
+  variables:
+    LLM_PROVIDER: anthropic
+  script:
+    - python -m eval.run_eval --out eval/report-claude.json
+  artifacts:
+    paths: [eval/report-claude.json]
+  allow_failure: true
+
+build-image:
+  stage: build
+  image: docker:27
+  services: [docker:27-dind]
+  before_script: []
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $IMAGE .
+    - docker push $IMAGE
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+deploy-cloud-run:
+  stage: deploy
+  image: google/cloud-sdk:slim
+  before_script: []
+  script:
+    - echo "$GCP_SA_KEY" > key.json && gcloud auth activate-service-account --key-file key.json
+    - gcloud run deploy telco-assurance-agent --image $IMAGE --region $GCP_REGION --project $GCP_PROJECT
+      --set-env-vars LLM_PROVIDER=vertex,VERTEX_PROJECT=$GCP_PROJECT --no-allow-unauthenticated
+  environment: staging
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+deploy-gke:
+  stage: deploy
+  image: google/cloud-sdk:slim
+  before_script: []
+  script:
+    - echo "$GCP_SA_KEY" > key.json && gcloud auth activate-service-account --key-file key.json
+    - gcloud container clusters get-credentials $GKE_CLUSTER --region $GCP_REGION --project $GCP_PROJECT
+    - sed -i "s|IMAGE_PLACEHOLDER|$IMAGE|g" deploy/k8s/*.yaml
+    - kubectl apply -f deploy/k8s/
+    - kubectl rollout status deployment/assurance-agent -n noc-agents --timeout=180s
+  environment: production
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual   # production rollout is a human decision too

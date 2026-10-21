@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: noc-agents
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: assurance-agent
+  namespace: noc-agents
+spec:
+  replicas: 2
+  strategy:
+    rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
+  selector:
+    matchLabels: {app: assurance-agent}
+  template:
+    metadata:
+      labels: {app: assurance-agent}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: /metrics
+    spec:
+      serviceAccountName: assurance-agent   # Workload Identity -> Vertex AI user role
+      containers:
+        - name: api
+          image: IMAGE_PLACEHOLDER
+          ports: [{containerPort: 8000}]
+          envFrom:
+            - configMapRef: {name: assurance-agent-config}
+            - secretRef: {name: assurance-agent-secrets}
+          readinessProbe:
+            httpGet: {path: /healthz, port: 8000}
+          livenessProbe:
+            httpGet: {path: /healthz, port: 8000}
+            initialDelaySeconds: 10
+          resources:
+            requests: {cpu: 250m, memory: 512Mi}
+            limits: {cpu: "1", memory: 1Gi}
+        - name: mcp-server
+          image: IMAGE_PLACEHOLDER
+          command: ["python", "-m", "app.mcp_server.server", "--http", "8001"]
+          envFrom:
+            - configMapRef: {name: assurance-agent-config}
+            - secretRef: {name: assurance-agent-secrets}
+          env:
+            - {name: RESET_DB, value: "false"}
+          ports: [{containerPort: 8001}]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: assurance-agent
+  namespace: noc-agents
+spec:
+  selector: {app: assurance-agent}
+  ports:
+    - {name: http, port: 80, targetPort: 8000}
+    - {name: mcp, port: 8001, targetPort: 8001}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: assurance-agent-config
+  namespace: noc-agents
+data:
+  LLM_PROVIDER: vertex
+  VERTEX_REGION: us-east5
+  EVENT_BUS: kafka
+  KAFKA_BOOTSTRAP: kafka.noc-data.svc:9092
+  MCP_SERVER: http://localhost:8001/mcp
+  RESET_DB: "false"
+  AUTO_APPROVE_MAX_RISK: none
