@@ -60,8 +60,10 @@ P/I/S-CSCF), 20 links with their 3GPP interfaces (N2, N3, N4, N11, S1-MME, S6a, 
 
 ## Quick start
 
+Needs Python 3.12 or newer.
+
 ```bash
-python -m venv .venv && . .venv/bin/activate
+python -m venv .venv && . .venv/bin/activate     # Windows PowerShell: py -m venv .venv; .venv\Scripts\Activate.ps1
 pip install -r requirements-dev.txt
 
 pytest -q                      # 21 tests
@@ -78,11 +80,16 @@ export LLM_PROVIDER=anthropic ANTHROPIC_API_KEY=sk-...        # Claude API
 export LLM_PROVIDER=vertex VERTEX_PROJECT=my-proj VERTEX_REGION=us-east5   # Claude on Vertex AI
 ```
 
+On Windows PowerShell: `$env:LLM_PROVIDER="anthropic"; $env:ANTHROPIC_API_KEY="sk-..."`.
+
 Full stack (PostgreSQL + pgvector, Kafka, MCP server, API):
 
 ```bash
 docker compose up --build
 ```
+
+To use Claude in the Docker stack, put `LLM_PROVIDER=anthropic` and `ANTHROPIC_API_KEY=sk-...` in a `.env`
+file next to `docker-compose.yml` (copy `.env.example`); Compose reads it automatically.
 
 ## API walk-through
 

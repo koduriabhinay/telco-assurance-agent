@@ -112,6 +112,9 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--http", type=int, help="serve streamable HTTP on this port instead of stdio")
     args = parser.parse_args()
+    # Seed (or attach to) the database before serving, not on the first tool call. Otherwise, with
+    # RESET_DB=true, the first call would wipe alarms and incidents the API wrote in the meantime.
+    get_store()
     if args.http:
         mcp.run(transport="streamable-http", host="0.0.0.0", port=args.http)
     else:
