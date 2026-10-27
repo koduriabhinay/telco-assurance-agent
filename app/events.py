@@ -52,6 +52,7 @@ class KafkaBus:
         from aiokafka import AIOKafkaConsumer
 
         consumer = AIOKafkaConsumer(self.topic, bootstrap_servers=self.bootstrap, group_id="assurance-agent",
+                                    auto_offset_reset="earliest", metadata_max_age_ms=5000,
                                     enable_auto_commit=False)
         await consumer.start()
         try:
