@@ -1,15 +1,15 @@
 # Telco Assurance Agent
 
-An agentic AI microservice for mobile network operations. It takes a live alarm from a 4G/5G network,
+An agent service for mobile network operations. It takes a live alarm from a 4G/5G network,
 finds the root cause across 5G Core, EPC, IMS and transport, proposes a fix from the operator's runbooks,
 waits for a human to approve it, applies it, and checks KPIs to confirm the network recovered.
 
 Runs fully offline on a mocked network (no API key needed). Set one environment variable to use Claude
 through the Anthropic API or on Vertex AI.
 
-## What it shows
+## Components
 
-| Skill | Where |
+| Component | Location |
 | --- | --- |
 | LangGraph multi-step agent, conditional edges, checkpointed memory | `app/agent/graph.py` |
 | Human approval with `interrupt()` / `Command(resume=...)` | `approval_gate` node, `app/agent/service.py` |
@@ -58,13 +58,13 @@ P/I/S-CSCF), 20 links with their 3GPP interfaces (N2, N3, N4, N11, S1-MME, S6a, 
 | IMS VoLTE/VoNR | P-CSCF `SIP_5XX_HIGH` | Cx Diameter peer on `hss-ims-01` | `failover_diameter_peer` |
 | 4G EPC attach | MME `ATTACH_FAILURE_HIGH` | `dra-01` S6a routing | `failover_diameter_peer` |
 
-## Quick start
+## Quickstart
 
 ```bash
 python -m venv .venv && . .venv/bin/activate
 pip install -r requirements-dev.txt
 
-pytest -q                      # 21 tests
+pytest -q
 python -m eval.run_eval        # evaluation report -> eval/report.json
 python -m scripts.demo         # interactive demo, approve each fix
 uvicorn app.api:app --reload   # API docs at http://localhost:8000/docs
@@ -152,18 +152,23 @@ With the offline mock all 14 cases pass. That checks the pipeline (correlation, 
 closed loop), not LLM quality: the mock follows the correlation result. The `agent-eval-claude` CI job
 runs the same gate against Claude when `ANTHROPIC_API_KEY` is set.
 
-## What was tested here, and what was not
+## Verification status
 
-- Tested: all 21 tests on SQLite and on PostgreSQL 16; the agent talking to the MCP server over real
+- Verified: the test suite on SQLite and on PostgreSQL 16; the agent calling the MCP server over
   streamable HTTP in a separate process; a paused incident approved after an API restart (Postgres
-  checkpointer); the Claude provider path with a fake client.
-- Written but not run in this environment: pgvector store, Kafka and Pub/Sub consumers, OpenTelemetry
-  export, Docker image, GitLab pipeline, GKE and Cloud Run manifests, and calls to the real Claude API.
+  checkpointer); the Anthropic provider path with a fake client.
+- Implemented but not yet exercised end to end: the pgvector store, Kafka and Pub/Sub consumers,
+  OpenTelemetry export, the Docker image, GitLab pipeline, GKE and Cloud Run manifests, and live
+  calls to the Claude API.
 
-## Taking it further
+## Possible extensions
 
 - Feed real alarms from an assurance / fault-management system over Kafka and replace the simulator in
   `execute_remediation` with calls to the network orchestrator.
 - Swap the hashing embedder for Vertex AI text embeddings.
 - Add auth (OAuth) on the MCP server and the API, and per-operator tenancy.
 - Grow the golden set from real resolved incidents and track eval scores per release.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
