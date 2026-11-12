@@ -31,6 +31,11 @@ services:
       DATABASE_URL: postgresql://postgres:noc@postgres:5432/noc
       RESET_DB: "true"          # seeds the mock network on start
     ports: ["8001:8001"]
+    healthcheck:
+      # the port opens only after the database is seeded
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8001), 2)"]
+      interval: 3s
+      retries: 20
     depends_on:
       postgres: {condition: service_healthy}
 
@@ -46,5 +51,5 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports: ["8000:8000"]
     depends_on:
-      mcp-server: {condition: service_started}
+      mcp-server: {condition: service_healthy}
       kafka: {condition: service_started}
