@@ -1,0 +1,5 @@
+# optional integrations, installed in the production image
+aiokafka
+google-cloud-pubsub
+opentelemetry-sdk
+opentelemetry-exporter-otlp

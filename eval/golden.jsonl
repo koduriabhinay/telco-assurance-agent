@@ -1,0 +1,14 @@
+{"alarm_id": "ALM-1001", "root_cause_node": "csr-blr-01", "runbook_id": "RB-TRN-001", "fix": "reroute_backhaul_path"}
+{"alarm_id": "ALM-1002", "root_cause_node": "csr-blr-01", "runbook_id": "RB-TRN-001", "fix": "reroute_backhaul_path"}
+{"alarm_id": "ALM-1003", "root_cause_node": "csr-blr-01", "runbook_id": "RB-TRN-001", "fix": "reroute_backhaul_path"}
+{"alarm_id": "ALM-1004", "root_cause_node": "csr-blr-01", "runbook_id": "RB-TRN-001", "fix": "reroute_backhaul_path"}
+{"alarm_id": "ALM-1005", "root_cause_node": "csr-blr-01", "runbook_id": "RB-TRN-001", "fix": "reroute_backhaul_path"}
+{"alarm_id": "ALM-2001", "root_cause_node": "upf-01", "runbook_id": "RB-UPF-002", "fix": "scale_out_upf"}
+{"alarm_id": "ALM-2002", "root_cause_node": "upf-01", "runbook_id": "RB-UPF-002", "fix": "scale_out_upf"}
+{"alarm_id": "ALM-2003", "root_cause_node": "upf-01", "runbook_id": "RB-UPF-002", "fix": "scale_out_upf"}
+{"alarm_id": "ALM-3001", "root_cause_node": "hss-ims-01", "runbook_id": "RB-IMS-003", "fix": "failover_diameter_peer"}
+{"alarm_id": "ALM-3002", "root_cause_node": "hss-ims-01", "runbook_id": "RB-IMS-003", "fix": "failover_diameter_peer"}
+{"alarm_id": "ALM-3003", "root_cause_node": "hss-ims-01", "runbook_id": "RB-IMS-003", "fix": "failover_diameter_peer"}
+{"alarm_id": "ALM-4001", "root_cause_node": "dra-01", "runbook_id": "RB-EPC-004", "fix": "failover_diameter_peer"}
+{"alarm_id": "ALM-4002", "root_cause_node": "dra-01", "runbook_id": "RB-EPC-004", "fix": "failover_diameter_peer"}
+{"alarm_id": "ALM-4003", "root_cause_node": "dra-01", "runbook_id": "RB-EPC-004", "fix": "failover_diameter_peer"}

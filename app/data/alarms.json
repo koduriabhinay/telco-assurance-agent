@@ -1,0 +1,19 @@
+[
+  {"id": "ALM-1001", "node_id": "csr-blr-01", "severity": "critical", "code": "LINK_DOWN", "text": "Interface 1/1/c3 to agg-blr-01 operationally down (LOS)", "raised_at": "2026-10-21T08:00:05Z", "scenario": "n2-transport"},
+  {"id": "ALM-1002", "node_id": "amf-01", "severity": "major", "code": "SCTP_ASSOC_DOWN", "text": "N2 SCTP association lost with gnb-blr-101", "raised_at": "2026-10-21T08:00:20Z", "scenario": "n2-transport"},
+  {"id": "ALM-1003", "node_id": "amf-01", "severity": "major", "code": "SCTP_ASSOC_DOWN", "text": "N2 SCTP association lost with gnb-blr-102", "raised_at": "2026-10-21T08:00:22Z", "scenario": "n2-transport"},
+  {"id": "ALM-1004", "node_id": "gnb-blr-101", "severity": "critical", "code": "NG_SETUP_FAILURE", "text": "NG Setup towards AMF failed, cell out of service", "raised_at": "2026-10-21T08:00:40Z", "scenario": "n2-transport"},
+  {"id": "ALM-1005", "node_id": "gnb-blr-102", "severity": "critical", "code": "NG_SETUP_FAILURE", "text": "NG Setup towards AMF failed, cell out of service", "raised_at": "2026-10-21T08:00:41Z", "scenario": "n2-transport"},
+
+  {"id": "ALM-2001", "node_id": "upf-01", "severity": "major", "code": "CPU_OVERLOAD", "text": "User-plane pod upf-01-dp-3 CPU above 95% for 5 min", "raised_at": "2026-10-21T09:10:00Z", "scenario": "upf-overload"},
+  {"id": "ALM-2002", "node_id": "smf-01", "severity": "major", "code": "PFCP_HEARTBEAT_FAIL", "text": "N4 PFCP heartbeat timeout towards upf-01", "raised_at": "2026-10-21T09:11:30Z", "scenario": "upf-overload"},
+  {"id": "ALM-2003", "node_id": "smf-01", "severity": "minor", "code": "PDU_SESSION_REJECT_HIGH", "text": "PDU session establishment reject rate above threshold (cause: insufficient resources)", "raised_at": "2026-10-21T09:12:10Z", "scenario": "upf-overload"},
+
+  {"id": "ALM-3001", "node_id": "hss-ims-01", "severity": "critical", "code": "DIAMETER_PEER_DOWN", "text": "Cx Diameter peer scscf-01 connection closed (DWR timeout)", "raised_at": "2026-10-21T10:30:00Z", "scenario": "ims-cx"},
+  {"id": "ALM-3002", "node_id": "scscf-01", "severity": "major", "code": "CX_TIMEOUT", "text": "MAR/SAR requests to HSS timing out", "raised_at": "2026-10-21T10:30:15Z", "scenario": "ims-cx"},
+  {"id": "ALM-3003", "node_id": "pcscf-01", "severity": "major", "code": "SIP_5XX_HIGH", "text": "SIP REGISTER 503 Service Unavailable rate above 10%", "raised_at": "2026-10-21T10:31:00Z", "scenario": "ims-cx"},
+
+  {"id": "ALM-4001", "node_id": "dra-01", "severity": "critical", "code": "DIAMETER_ROUTE_FAIL", "text": "No route to realm hss.epc.operator.com: peer hss-01 suspect", "raised_at": "2026-10-21T11:45:00Z", "scenario": "epc-s6a"},
+  {"id": "ALM-4002", "node_id": "mme-01", "severity": "major", "code": "S6A_AIR_TIMEOUT", "text": "S6a Authentication-Information-Request timeouts towards DRA", "raised_at": "2026-10-21T11:45:20Z", "scenario": "epc-s6a"},
+  {"id": "ALM-4003", "node_id": "mme-01", "severity": "major", "code": "ATTACH_FAILURE_HIGH", "text": "EPS attach success rate below 90%", "raised_at": "2026-10-21T11:46:00Z", "scenario": "epc-s6a"}
+]
